@@ -11,6 +11,9 @@ import structlog
 # - DEMO_DATABASE_PORT: database port (only for postgresql)
 
 settings = Dynaconf(
+    default_settings={
+        'CPT_CODES_CSV': 'cpt_codes.csv',
+    },
     envvar_prefix="DEMO",
     settings_files=['.env'],
     environments=True,

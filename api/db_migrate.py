@@ -1,4 +1,6 @@
-from config import log
+import csv
+
+from config import log, settings
 from db_config import db
 from model import Patient, CPTCode, Encounter, LineItem
 
@@ -11,9 +13,10 @@ and how that affects related data in other tables. For the purposes of a demo,
 this is fine.
 """
 def preload_cpt_codes():
-    with open("cpt_codes.csv") as f:
-        for line in f:
-            code, description = line.strip().split(",")
+    with open(settings.CPT_CODES_CSV, newline='') as f:
+        reader = csv.reader(f, delimiter=',', quotechar='"')
+        for row in reader:
+            code, description = row
             CPTCode.create(code=code, description=description)
     num_cpt_codes = CPTCode.select().count()
     log.info(f"preloaded {num_cpt_codes} CPT codes")
