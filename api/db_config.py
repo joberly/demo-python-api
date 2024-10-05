@@ -20,3 +20,5 @@ match db_driver:
         )
     case _:
         raise ValueError(f"unsupported database driver: {db_driver}")
+
+db.connect()
