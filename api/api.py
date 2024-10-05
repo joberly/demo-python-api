@@ -3,7 +3,7 @@ from fastapi import FastAPI, HTTPException
 from peewee import IntegrityError
 from typing import TypedDict
 
-from api_input import PatientInput
+from api_input import PatientInput, EncounterInput
 from api_output import EncounterOutput, LineItemOutput, PatientOutput
 from config import log
 import model
@@ -14,7 +14,7 @@ app = FastAPI()
 # Patients API endpoints
 
 @app.post("/patients/")
-async def add_patient(patient : PatientInput):
+async def add_patient(patient: PatientInput):
     try:
         patient = Patient.create(first_name=patient.first_name, last_name=patient.last_name)
         return PatientOutput.from_patient(patient)
@@ -42,13 +42,13 @@ async def get_patient(patient_id: str):
 # Patient encounters API endpoints
 
 @app.post("/patients/{patient_id}/encounters/")
-async def add_patient_encounter(patient_id: str, date: str):
+async def add_patient_encounter(patient_id: str, encounter: EncounterInput):
     try:
         # Check the date format first
         try:
             datetime.strptime(date, "%Y-%m-%d")
         except ValueError:
-            log.info("invalid encounter date format", patient_id=patient_id, date=date)
+            log.info("invalid encounter date format", patient_id=patient_id, date=encounter.date)
             raise HTTPException(status_code=400, detail="invalid date format")
         # Check if the patient exists and retrieve
         patient = Patient.get_or_none(Patient.id == patient_id)
@@ -56,11 +56,11 @@ async def add_patient_encounter(patient_id: str, date: str):
             log.info("patient not found", patient_id=patient_id)
             raise HTTPException(status_code=404, detail="patient not found")
         # Create the new patient encounter
-        encounter = Encounter.create(patient=patient, date=date)
+        encounter = Encounter.create(patient=patient, date=encounter.date)
         return EncounterOutput.from_encounter(encounter)
 
     except IntegrityError:
-        log.error("failure creating encounter", patient_id=patient_id, date=date)
+        log.error("failure creating encounter", patient_id=patient_id, date=encounter.date)
         raise HTTPException(status_code=400, detail="failure creating encounter")
 
 @app.get("/patients/{patient_id}/encounters/")
@@ -91,7 +91,7 @@ async def get_patient_encounter(patient_id: str, encounter_id: str):
             raise HTTPException(status_code=404, detail="patient not found")
 
         # Check if the encounter exists and retrieve
-        encounter = Encounter.get_or_none(Encounter.uuid == encounter_id, Encounter.patient == patient_id)
+        encounter = Encounter.get_or_none(Encounter.id == encounter_id, Encounter.patient == patient_id)
         if not encounter:
             log.info("patient encounter not found", patient_id=patient_id, encounter_id=encounter_id)
             raise HTTPException(status_code=404, detail="encounter not found")
@@ -114,7 +114,7 @@ async def add_patient_encounter_line_item(patient_id: str, encounter_id: str, cp
             raise HTTPException(status_code=404, detail="patient not found")
         
         # Check if the encounter exists and retrieve
-        encounter = Encounter.get_or_none(Encounter.uuid == encounter_id, Encounter.patient == patient_id)
+        encounter = Encounter.get_or_none(Encounter.id == encounter_id, Encounter.patient == patient_id)
         if not encounter:
             log.info("encounter not found", patient_id=patient_id, encounter_id=encounter_id)
             raise HTTPException(status_code=404, detail="encounter not found")
@@ -142,7 +142,7 @@ async def get_patient_encounter_line_items(patient_id: str, encounter_id: str):
             raise HTTPException(status_code=404, detail="patient not found")
         
         # Check if the encounter exists and retrieve
-        encounter = Encounter.get_or_none(Encounter.uuid == encounter_id, Encounter.patient == patient_id)
+        encounter = Encounter.get_or_none(Encounter.id == encounter_id, Encounter.patient == patient_id)
         if not encounter:
             log.info("encounter not found", patient_id=patient_id, encounter_id=encounter_id)
             raise HTTPException(status_code=404, detail="encounter not found")

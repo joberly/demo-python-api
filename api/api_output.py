@@ -16,13 +16,13 @@ class PatientOutput(BaseModel):
         )
 
 class EncounterOutput(BaseModel):
-    uuid: str
+    id: str
     date: str
 
     @classmethod
     def from_encounter(cls, encounter: Encounter) -> "EncounterOutput":
         return cls(
-            uuid=str(encounter.uuid),
+            id=str(encounter.id),
             date=str(encounter.date),
         )
 
