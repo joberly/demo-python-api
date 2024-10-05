@@ -1,6 +1,5 @@
-from peewee import Model, CharField, ForeignKeyField, DateField, IntegerField, SqliteDatabase
+from peewee import Model, CharField, ForeignKeyField, DateField, IntegerField
 from db_config import db
-
 
 # Patient data model
 class Patient(Model):
@@ -10,7 +9,7 @@ class Patient(Model):
     class Meta:
         database = db
 
-# Current Procedural Terminology (CPT) code model
+# Current Procedural Terminology (CPT) code data model
 class CPTCode(Model):
     code = CharField(unique=True)
     description = CharField()

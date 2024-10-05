@@ -5,6 +5,23 @@ Demo Python REST API using Postgres deployed with Kubernetes
 
 This is a demo Python REST API using Postgres as its database, deploying with Kubernetes. It's a mock healthcare provider billing system. The database schema has tables for patients, encounters, line items, and [Current Procedural Terminology (CPT) codes](https://www.aapc.com/resources/what-is-cpt).
 
+## Data Model
+
+- Patient
+  - Has a unique identifier chosen at creation
+  - Has many encounters
+- Encounter
+  - Has one patient
+  - Has one date
+  - Has many line items
+- Line Item
+  - Has one encounter
+  - Has one CPT code
+  - Has one number of units (integer for now, basically just a count)
+- CPT Code
+  - Has one description
+  - No backrefs for now as there will be many, many line items
+
 ## API
 
 The API has the following methods:
