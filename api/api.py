@@ -3,6 +3,7 @@ from fastapi import FastAPI, HTTPException
 from peewee import IntegrityError
 from typing import TypedDict
 
+from api_input import PatientInput
 from api_output import EncounterOutput, LineItemOutput, PatientOutput
 from config import log
 import model
@@ -13,9 +14,9 @@ app = FastAPI()
 # Patients API endpoints
 
 @app.post("/patients/")
-async def add_patient(first_name: str, last_name: str):
+async def add_patient(patient : PatientInput):
     try:
-        patient = Patient.create(first_name=first_name, last_name=last_name)
+        patient = Patient.create(first_name=patient.first_name, last_name=patient.last_name)
         return PatientOutput.from_patient(patient)
     except IntegrityError:
         log.error("failure creating patient")

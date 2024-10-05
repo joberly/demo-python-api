@@ -1,8 +1,8 @@
 from model import Patient, Encounter, CPTCode, LineItem
-from typing import TypedDict
+from pydantic import BaseModel
 
 # Data output classes
-class PatientOutput(TypedDict):
+class PatientOutput(BaseModel):
     id: str
     first_name: str
     last_name: str
@@ -15,7 +15,7 @@ class PatientOutput(TypedDict):
             last_name=patient.last_name,
         )
 
-class EncounterOutput(TypedDict):
+class EncounterOutput(BaseModel):
     uuid: str
     date: str
 
@@ -26,7 +26,7 @@ class EncounterOutput(TypedDict):
             date=str(encounter.date),
         )
 
-class LineItemOutput(TypedDict):
+class LineItemOutput(BaseModel):
     cpt_code: str
     cpt_code_description: str
     units: int

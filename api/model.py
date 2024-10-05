@@ -23,7 +23,7 @@ class CPTCode(Model):
 
 # Encounter data model
 class Encounter(Model):
-    uuid = UUIDField(primary_key=True, default=uuid.uuid4)
+    id = UUIDField(primary_key=True, default=uuid.uuid4)
     patient = ForeignKeyField(Patient, backref='encounters')
     date = DateField()
 
