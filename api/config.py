@@ -1,4 +1,5 @@
 from dynaconf import Dynaconf
+import structlog
 
 # Load settings from a .env file if present, otherwise get them from the environment.
 # Expected environment variables:
@@ -15,3 +16,19 @@ settings = Dynaconf(
     environments=True,
     load_dotenv=True,
 )
+
+# Setup JSON structure logging
+
+structlog.configure(
+    processors=[
+        structlog.stdlib.add_log_level,
+        structlog.processors.TimeStamper(fmt="iso"),
+        structlog.processors.JSONRenderer()
+    ],
+    context_class=dict,
+    logger_factory=structlog.PrintLoggerFactory(),
+    wrapper_class=structlog.BoundLogger,
+    cache_logger_on_first_use=True,
+)
+
+log = structlog.get_logger()
