@@ -1,4 +1,5 @@
 from peewee import Model, CharField, ForeignKeyField, DateField, IntegerField, UUIDField
+from typing import List
 import uuid
 
 from db_config import db
@@ -37,6 +38,18 @@ class LineItem(Model):
 
     class Meta:
         database = db
+
+# Get extended line items for an encounter
+# This is probably a bit inefficient because an encounter might have
+# many line items, AND we're joining it with the CPT table to get code
+# descriptions. This might be a good candidate for a more efficient query.
+# For the demo, we'll keep it simple.
+def get_line_items_for_encounter(encounter: Encounter) -> List[LineItem]:
+    return (LineItem
+        .select()
+        .join(CPTCode)
+        .where(LineItem.encounter == encounter)
+        .execute())
 
 # For now, create the tables if they don't exist.
 # In production we'd use a migration tool but this is fine for a demo.
