@@ -20,6 +20,11 @@ async def add_patient(first_name: str, last_name: str):
     except IntegrityError:
         log.error("failure creating patient")
         raise HTTPException(status_code=400, detail="failure creating patient")
+
+@app.get("/patients/")
+async def get_patients():
+    patients = Patient.select()
+    return [ PatientOutput.from_patient(patient) for patient in patients ]
     
 @app.get("/patients/{patient_id}")
 async def get_patient(patient_id: int):
