@@ -27,7 +27,7 @@ async def get_patients():
     return [ PatientOutput.from_patient(patient) for patient in patients ]
     
 @app.get("/patients/{patient_id}")
-async def get_patient(patient_id: int):
+async def get_patient(patient_id: str):
     try:
         patient = Patient.get_or_none(Patient.id == patient_id)
         if not patient:
@@ -41,7 +41,7 @@ async def get_patient(patient_id: int):
 # Patient encounters API endpoints
 
 @app.post("/patients/{patient_id}/encounters/")
-async def add_patient_encounter(patient_id: int, date: str):
+async def add_patient_encounter(patient_id: str, date: str):
     try:
         # Check the date format first
         try:
@@ -63,7 +63,7 @@ async def add_patient_encounter(patient_id: int, date: str):
         raise HTTPException(status_code=400, detail="failure creating encounter")
 
 @app.get("/patients/{patient_id}/encounters/")
-async def get_patient_encounters(patient_id: int):
+async def get_patient_encounters(patient_id: str):
     try:
         # Check if the patient exists and retrieve
         patient = Patient.get_or_none(Patient.id == patient_id)
@@ -81,7 +81,7 @@ async def get_patient_encounters(patient_id: int):
         raise HTTPException(status_code=400, detail="failure retrieving encounters")
 
 @app.get("/patients/{patient_id}/encounters/{encounter_id}")
-async def get_patient_encounter(patient_id: int, encounter_id: int):
+async def get_patient_encounter(patient_id: str, encounter_id: str):
     try:
         # Check if the patient exists and retrieve
         patient = Patient.get_or_none(Patient.id == patient_id)
@@ -104,7 +104,7 @@ async def get_patient_encounter(patient_id: int, encounter_id: int):
 # Patient encounter line items API endpoints
 
 @app.post("/patients/{patient_id}/encounters/{encounter_id}/line_items/")
-async def add_patient_encounter_line_item(patient_id: int, encounter_id: int, cpt_code: str, units: int):
+async def add_patient_encounter_line_item(patient_id: str, encounter_id: str, cpt_code: str, units: int):
     try:
         # Check if the patient exists and retrieve
         patient = Patient.get_or_none(Patient.id == patient_id)
@@ -132,7 +132,7 @@ async def add_patient_encounter_line_item(patient_id: int, encounter_id: int, cp
         raise HTTPException(status_code=400, detail="failure creating line item")
 
 @app.get("/patients/{patient_id}/encounters/{encounter_id}/line_items/")
-async def get_patient_encounter_line_items(patient_id: int, encounter_id: int):
+async def get_patient_encounter_line_items(patient_id: str, encounter_id: str):
     try:
         # Check if the patient exists and retrieve
         patient = Patient.get_or_none(Patient.id == patient_id)

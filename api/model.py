@@ -50,7 +50,3 @@ def get_line_items_for_encounter(encounter: Encounter) -> List[LineItem]:
         .join(CPTCode)
         .where(LineItem.encounter == encounter)
         .execute())
-
-# For now, create the tables if they don't exist.
-# In production we'd use a migration tool but this is fine for a demo.
-db.create_tables([Patient, CPTCode, Encounter, LineItem])
