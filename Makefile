@@ -39,7 +39,7 @@ registry:
 .PHONY: predeploy
 predeploy:
 	@echo "installing/upgrading ingress-nginx"
-    helm upgrade --install ingress-nginx ingress-nginx --repo https://kubernetes.github.io/ingress-nginx --namespace ingress-nginx --create-namespace
+	helm upgrade --install ingress-nginx ingress-nginx --repo https://kubernetes.github.io/ingress-nginx --namespace ingress-nginx --create-namespace
 
 # Build and push the image to the local docker registry
 .PHONY: push
