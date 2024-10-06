@@ -1,0 +1,100 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: demo-python-api
+  labels:
+    app: demo-python-api
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: demo-python-api
+  template:
+    metadata:
+      labels:
+        app: demo-python-api
+    spec:
+      containers:
+        - name: demo-python-api
+          image: localhost:5000/demo-python-api:test
+          imagePullPolicy: Always
+          ports:
+            - name: http
+              containerPort: 8080
+          securityContext:
+            runAsUser: 1000
+            runAsGroup: 1000
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+          env:
+            - name: DEMO_DATABASE_DRIVER
+              value: postgresql
+            - name: DEMO_DATABASE_HOST
+              value: postgres
+            - name: DEMO_DATABASE_PORT
+              value: "5432"
+            - name: DEMO_DATABASE_USER
+              value: user
+            - name: DEMO_DATABASE_PASSWORD
+              value: password
+            - name: DEMO_DATABASE_NAME
+              value: postgres
+            - name: DEMO_CPT_CODES_CSV
+              value: cpt_codes.csv
+            - name: DEMO_HOST
+              value: "0.0.0.0"
+            - name: DEMO_PORT
+              value: "8080"
+          livenessProbe:
+            httpGet:
+              path: /health/
+              port: 8080
+            initialDelaySeconds: 10
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /health/
+              port: 8080
+            initialDelaySeconds: 5
+            periodSeconds: 10
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: demo-python-api
+  labels:
+    app: demo-python-api
+spec:
+  selector:
+    app: demo-python-api
+  ports:
+    - name: http
+      port: 80
+      targetPort: http
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: demo-python-api
+spec:
+  ingressClassName: nginx
+  rules:
+    - http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: demo-python-api
+                port:
+                  name: http
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: demo-python-api
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels:
+      app: demo-python-api
