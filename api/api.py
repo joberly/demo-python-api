@@ -46,7 +46,7 @@ async def add_patient_encounter(patient_id: str, encounter: EncounterInput):
     try:
         # Check the date format first
         try:
-            datetime.strptime(date, "%Y-%m-%d")
+            datetime.strptime(encounter.date, "%Y-%m-%d")
         except ValueError:
             log.info("invalid encounter date format", patient_id=patient_id, date=encounter.date)
             raise HTTPException(status_code=400, detail="invalid date format")
