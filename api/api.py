@@ -3,7 +3,7 @@ from fastapi import FastAPI, HTTPException
 from peewee import IntegrityError
 from typing import TypedDict
 
-from api_input import PatientInput, EncounterInput
+from api_input import PatientInput, EncounterInput, LineItemInput
 from api_output import EncounterOutput, LineItemOutput, PatientOutput
 from config import log
 import model
@@ -105,7 +105,7 @@ async def get_patient_encounter(patient_id: str, encounter_id: str):
 # Patient encounter line items API endpoints
 
 @app.post("/patients/{patient_id}/encounters/{encounter_id}/line_items/")
-async def add_patient_encounter_line_item(patient_id: str, encounter_id: str, cpt_code: str, units: int):
+async def add_patient_encounter_line_item(patient_id: str, encounter_id: str, line_item: LineItemInput):
     try:
         # Check if the patient exists and retrieve
         patient = Patient.get_or_none(Patient.id == patient_id)
@@ -120,14 +120,17 @@ async def add_patient_encounter_line_item(patient_id: str, encounter_id: str, cp
             raise HTTPException(status_code=404, detail="encounter not found")
         
         # Check if the CPT code exists
-        cpt = CPTCode.get_or_none(CPTCode.code == cpt_code)
+        cpt = CPTCode.get_or_none(CPTCode.code == line_item.cpt_code)
         if not cpt:
-            log.info("CPT code not found", cpt_code=cpt_code)
+            log.info("CPT code not found", cpt_code=line_item.cpt_code)
             raise HTTPException(status_code=404, detail="CPT code not found")
         
         # Create the line item
-        line_item = LineItem.create(encounter=encounter, cpt_code=cpt, units=units)
-        return { "success": True }
+        line_item = LineItem.create(encounter=encounter, cpt_code=cpt, units=line_item.units)
+
+        # Return the line item output data
+        return LineItemOutput.from_line_item(line_item)
+
     except IntegrityError:
         log.error("failure creating line item", patient_id=patient_id, encounter_id=encounter_id)
         raise HTTPException(status_code=400, detail="failure creating line item")
