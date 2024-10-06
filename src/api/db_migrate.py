@@ -17,7 +17,7 @@ def preload_cpt_codes():
         reader = csv.reader(f, delimiter=',', quotechar='"')
         for row in reader:
             code, description = row
-            CPTCode.create(code=code, description=description)
+            CPTCode.get_or_create(code=code, description=description)
     num_cpt_codes = CPTCode.select().count()
     log.info(f"preloaded {num_cpt_codes} CPT codes")
 

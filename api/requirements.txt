@@ -1,4 +1,0 @@
-dynaconf==3.2.6
-fastapi==0.115.0
-peewee==3.17.6
-structlog==24.4.0

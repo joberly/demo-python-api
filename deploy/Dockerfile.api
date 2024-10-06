@@ -2,10 +2,24 @@ FROM python:3.11-slim
 
 WORKDIR /app
 
-COPY requirements.txt .
+# no need to buffer output when building the image
+ENV PYTHONUNBUFFERED=1
 
-RUN pip install --no-cache-dir -r requirements.txt
+# install poetry
+RUN pip install --upgrade pip && \
+    pip install poetry
 
-COPY *.py .
+# copy the poetry files
+COPY pyproject.toml poetry.lock ./
 
-CMD ["uvicorn", "api:api", "--host", "0.0.0.0", "--port", "8080"]
+# install dependencies
+RUN poetry config virtualenvs.create false && \
+    poetry install --no-interaction --no-ansi
+
+# copy the source code
+COPY src/ .
+
+# copy data for preloading -- demo only
+COPY data/ .
+
+CMD ["python", "api/main.py"]
