@@ -4,7 +4,7 @@ import pytest
 from api import app
 from model import Patient
 
-@pytest.fixture(autouse=True)
+@pytest.fixture(scope='function', autouse=True)
 def test_setup_db():
     Patient.delete().execute()
 
@@ -68,3 +68,11 @@ async def test_get_patient():
             "first_name": "Pat",
             "last_name": "Doe",
         }
+
+# Get a non-existent patient by ID
+@pytest.mark.asyncio
+async def test_get_patient_not_found():
+    async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as ac:
+        response = await ac.get("/patients/123")
+        assert response.status_code == 404
+        assert response.json() == {"detail": "patient not found"}
