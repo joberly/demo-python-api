@@ -1,6 +1,12 @@
 # demo-python-api
 Demo Python REST API using Postgres deployed with Kubernetes
 
+## Disclaimer
+
+This project is a demo API designed for educational and testing purposes only. All patient, encounter, encounter line item, and CPT code data used within this repository is entirely fictional and generated for demonstration purposes. 
+
+While the CPT codes included may be real, they are only used as examples. **This API is not designed or intended to handle any real patient information or data protected under HIPAA or similar regulations.** Please do not use this project for any real-world applications involving sensitive or personally identifiable information.
+
 ## Description
 
 This is a demo Python REST API using Postgres as its database, deploying with Kubernetes. It's a mock healthcare provider billing system. The database schema has tables for patients, encounters, line items, and [Current Procedural Terminology (CPT) codes](https://www.aapc.com/resources/what-is-cpt).
