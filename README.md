@@ -49,13 +49,28 @@ Use `curl` to send requests to the API locally with HTTP on port 80. Here are so
 
 ```
 $ curl -X POST -H "Content-Type: application/json" -d '{"first_name": "John", "last_name": "Oberly"}' http://localhost:80/patients/
-{"id":"52d8a27a-4596-4713-99bf-4d7115da1762","first_name":"John","last_name":"Oberly"}
+{"id":"13d62589-66b8-414f-ba05-7e4fc1c3ac1b","first_name":"John","last_name":"Oberly"}
 
 $ curl -X GET http://localhost:80/patients/
-[{"id":"52d8a27a-4596-4713-99bf-4d7115da1762","first_name":"John","last_name":"Oberly"}]
+[{"id":"13d62589-66b8-414f-ba05-7e4fc1c3ac1b","first_name":"John","last_name":"Oberly"}]
 
-$ curl -X GET http://localhost:80/patients/52d8a27a-4596-4713-99bf-4d7115da1762
-{"id":"52d8a27a-4596-4713-99bf-4d7115da1762","first_name":"John","last_name":"Oberly"}
+$ curl -X GET http://localhost:80/patients/13d62589-66b8-414f-ba05-7e4fc1c3ac1b
+{"id":"13d62589-66b8-414f-ba05-7e4fc1c3ac1b","first_name":"John","last_name":"Oberly"}
+
+$ curl -X POST -H "Content-Type: application/json" -d '{"date": "2024-01-01"}' http://localhost:80/patients/13d62589-66b8-414f-ba05-7e4fc1c3ac1b/encounters/
+{"id":"ffa61c9a-9de2-4bec-8590-d174ff386db7","date":"2024-01-01"}
+
+$ curl -X GET http://localhost:80/patients/13d62589-66b8-414f-ba05-7e4fc1c3ac1b/encounters/
+[{"id":"ffa61c9a-9de2-4bec-8590-d174ff386db7","date":"2024-01-01"}]
+
+$ curl -X GET http://localhost:80/patients/13d62589-66b8-414f-ba05-7e4fc1c3ac1b/encounters/ffa61c9a-9de2-4bec-8590-d174ff386db7
+{"id":"ffa61c9a-9de2-4bec-8590-d174ff386db7","date":"2024-01-01"}
+
+$ curl -X POST -H "Content-Type: application/json" -d '{"cpt_code": "99213", "units": 0}' http://localhost:80/patients/13d62589-66b8-414f-ba05-7e4fc1c3ac1b/encounters/ffa61c9a-9de2-4bec-8590-d174ff386db7/line_items/
+{"cpt_code":"99213","cpt_code_description":"Office or other outpatient visit, established patient, moderate","units":0}
+
+$ curl -X GET -H "Content-Type: application/json" http://localhost:80/patients/13d62589-66b8-414f-ba05-7e4fc1c3ac1b/encounters/ffa61c9a-9de2-4bec-8590-d174ff386db7/line_items/
+[{"cpt_code":"99213","cpt_code_description":"Office or other outpatient visit, established patient, moderate","units":0}]
 ```
 
 ## Data Model
@@ -78,11 +93,134 @@ $ curl -X GET http://localhost:80/patients/52d8a27a-4596-4713-99bf-4d7115da1762
 ## API
 
 The API has the following methods:
-1. Add a patient - inputs: first and last name of patient, outputs: unique patient ID
-2. Add an encounter - inputs: patient ID, date, outputs: unique encounter ID
-3. Add a line item - inputs: encounter ID, CPT code
-4. Query patient encounters - inputs: patient ID, outputs: list of encounter IDs and dates
-5. Query encounter line items - inputs: encounter ID, outputs: patient name, list of line items with their CPT codes with description for each
+
+### POST /patients/
+
+Creates a patient.
+
+#### Input
+
+JSON object body:
+- `first_name`: string
+- `last_name`: string
+
+#### Output
+
+JSON object:
+- `id`: UUID
+- `first_name`: string
+- `last_name`: string
+
+### GET /patients/
+
+Retrieves all patients.
+
+#### Input
+
+None
+
+#### Output
+
+JSON list of objects each containing the following:
+- `id`: UUID
+- `first_name`: string
+- `last_name`: string
+
+### GET /patients/{patient_id}/
+
+Retrieves a patient.
+
+#### Input
+
+In URL:
+- `patient_id`: UUID of patient
+
+#### Output
+
+JSON object:
+- `id`: UUID
+- `first_name`: string
+- `last_name`: string
+
+
+### POST /patients/{patient_id}/encounters/
+
+Creates a patient encounter.
+
+#### Input
+
+In URL:
+- `patient_id`: UUID of patient
+
+JSON object body:
+- `date`: Date (YYYY-mm-dd format) of encounter
+
+#### Output
+
+JSON object:
+- `id`: Globally unique UUID of encounter
+- `date`: Date of encounter
+
+### GET /patients/{patient_id}/encounters/
+
+#### Input
+
+In URL:
+- `patient_id`: UUID of patient
+
+#### Output
+
+JSON list of objects each containing the following:
+- `id`: Globally unique UUID of encounter
+- `date`: Date of encounter
+
+### GET /patients/{patient_id}/encounters/{encounter_id}/
+
+#### Input
+
+In URL:
+- `patient_id`: UUID of patient
+- `encounter_id`: UUID of patient encounter
+
+#### Output
+
+JSON object:
+- `id`: Globally unique UUID of encounter
+- `date`: Date of encounter
+
+### POST /patients/{patient_id}/encounters/{encounter_id}/line_items/
+
+#### Input
+
+In URL:
+- `patient_id`: UUID of patient
+- `encounter_id`: UUID of patient encounter
+
+JSON object body:
+- `cpt_code`: string, CPT code for line item
+- `units`: int, number of units for line item
+
+#### Output
+
+JSON object:
+- `cpt_code`: string, CPT code for line item
+- `cpt_code_description`: string, CPT code description
+- `units`: int, number of units for line item
+
+### GET /patients/{patient_id}/encounters/{encounter_id}/line_items/
+
+#### Input
+
+In URL:
+- `patient_id`: UUID of patient
+- `encounter_id`: UUID of patient encounter
+
+#### Output
+
+JSON list of objects each containing the following:
+- `cpt_code`: string, CPT code for line item
+- `cpt_code_description`: string, CPT code description
+- `units`: int, number of units for line item
 
 ## Internals
 
@@ -91,6 +229,7 @@ The API has the following methods:
 - Postgres for the database because it's easy to deploy for demo purposes.
 - SQLite for unit testing because it doesn't need deployment.
 - Kubernetes for deployment because who doesn't like making their local machine go **_brrrrrr_**.
+- Tables are created and CPT codes are loaded at API start as part of an internal database migration step.
 
 ## Test Coverage
 
@@ -117,3 +256,7 @@ src\api\routers\routers.py          3      0   100%
 ---------------------------------------------------
 TOTAL                             269     37    86%
 ```
+
+## Known Issues
+
+Health checks spam the logs a bit.
